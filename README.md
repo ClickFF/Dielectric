@@ -233,8 +233,8 @@ model = VGAE(encoder, decoder)
 ```
 To load the saved models:
 ```python
-model.load_state_dict(torch.load(“vae_reg.pth”))
-predictor.load_state_dict(torch.load(“pred_reg.pth”))
+model.load_state_dict(torch.load("vae_reg.pth"))
+predictor.load_state_dict(torch.load("pred_reg.pth"))
 ```
 To make predictions:
 ```python
