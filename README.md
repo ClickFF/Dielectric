@@ -333,18 +333,23 @@ def mol_to_graph(smiles, temperature):
 graph = mol_to_graph(smiles, temp) # Temperature has to be normalized
 
 driver = []
-    if graph != False:
-        driver.append(Data(
-            x = torch.tensor(np.array(graph[0]), dtype=torch.float),
-            edge_index = torch.tensor(np.array(graph[1]), dtype=torch.float).long(),
-            edge_attr = torch.tensor(np.array(graph[2]), dtype=torch.float),
-            y = torch.tensor(np.array(34), dtype=torch.float),
-            ))
-    driv = DataLoader(driver, batch_size=1, shuffle=False, collate_fn=collate_fn)
+if graph != False:
+    driver.append(Data(
+        x = torch.tensor(np.array(graph[0]), dtype=torch.float),
+        edge_index = torch.tensor(np.array(graph[1]), dtype=torch.float).long(),
+        edge_attr = torch.tensor(np.array(graph[2]), dtype=torch.float),
+        y = torch.tensor(np.array(34), dtype=torch.float),
+        ))
+driv = DataLoader(driver, batch_size=1, shuffle=False, collate_fn=collate_fn)
 
+model.eval()
+predictor.eval()
+for mol in driv:
+    node, edge, pred_value = compute_full_saliency(model, predictor, mol, device)
+    l = mol.edge_index.cpu().numpy()
+    mu, _ = model.encoder(mol.x, mol.edge_index, mol.edge_attr, mol.batch)
+    prediction = predictor(mu, mol.edge_index, mol.edge_attr, mol.batch)
 
-mu, _ = model(mol.x, mol.edge_index, mol.edge_attr, mol.batch)
-predlbl = predictor(mu, mol.edge_index, mol.edge_attr, mol.batch)
 ```
 ### Large Language Model:
 The model was a modified version of ChemBERTa’s model:
