@@ -29,7 +29,7 @@ To make predictions with the model:
 predlbl = regr.predict(X_test)
 ```
 ### Variational AutoEncoder:
-The VAE is modified from AttentiveFP models:
+The VAE is modified from the [Attentive FP](https://pubs.acs.org/jmcmar/article-abstract/63/16/8749/1502168/Pushing-the-Boundaries-of-Molecular-Representation) Model:
 ```python
 class GATEConv(MessagePassing):
     def __init__(
@@ -236,7 +236,7 @@ To load the saved models:
 model.load_state_dict(torch.load("vae_reg.pth"))
 predictor.load_state_dict(torch.load("pred_reg.pth"))
 ```
-To make predictions:
+The conversion of SMILES to a graph object is based on [this article](https://keras.io/examples/generative/molecule_generation/). To make predictions:
 ```python
 SMILE_CHARSET = '["C", "B", "F", "I", "H", "O", "N", "S", "P", "Cl", "Br"]'
 bond_mapping = {"SINGLE": 0, "DOUBLE": 1, "TRIPLE": 2, "AROMATIC": 3}
@@ -352,9 +352,9 @@ for mol in driv:
 
 ```
 ### Large Language Model:
-The model was a modified version of ChemBERTa’s model:
+The model was a modified version of [ChemBERTa’s model](https://arxiv.org/abs/2209.01712):
 ```python
-class CustomChemBertaForRegression(RobertaPreTrainedModel):
+class ModifiedChemBERTa(RobertaPreTrainedModel):
     def __init__(self, config, extra_feature_dim=1):
         super().__init__(config)
         self.num_labels = config.num_labels
@@ -387,12 +387,13 @@ class CustomChemBertaForRegression(RobertaPreTrainedModel):
             loss = loss_fct(logits.squeeze(), constants.squeeze())
             
         return {"loss": loss, "logits": logits, "attentions": outputs["attentions"]} if loss is not None else {"logits": logits}
-
+```
 To load the saved model:
+```python
 tokenizer = AutoTokenizer.from_pretrained("./llm_tokenizer")
 config = AutoConfig.from_pretrained("./llm_reg")
 
-model = CustomChemBertaForRegression.from_pretrained(
+model = ModifiedChemBERTa.from_pretrained(
     "./llm_reg", 
     config=config,
     extra_feature_dim=1 
